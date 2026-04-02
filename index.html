@@ -2,482 +2,1096 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>君が創る！みんなの街と未来</title>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'M PLUS Rounded 1c', sans-serif; 
-            background-color: #fff9f0; /* 温かみのある背景色 */
-            margin: 0; padding: 20px; color: #4a4a4a; 
+        :root {
+            --primary: #ff6b35;
+            --primary-dark: #c94a18;
+            --accent1: #a29bfe;
+            --accent1-dark: #6c5ce7;
+            --accent2: #00b894;
+            --accent2-dark: #007a63;
+            --accent3: #fdcb6e;
+            --accent3-dark: #e1a62a;
+            --bg: #fff9f0;
+            --card-bg: #ffffff;
+            --text: #3d3d3d;
+            --text-light: #888;
+            --border: #ffe0c0;
+            --radius: 18px;
+            --radius-sm: 10px;
+            --shadow: 0 8px 24px rgba(255,107,53,0.10);
         }
-        #app-container { 
-            max-width: 650px; margin: 0 auto; background: white; padding: 25px; 
-            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; 
-            border: 4px solid #ffeaa7;
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background: var(--bg);
+            margin: 0; padding: 10px;
+            color: var(--text);
+            min-height: 100vh;
         }
-        h1 { color: #d35400; font-size: 26px; border-bottom: 3px dashed #fad390; padding-bottom: 10px; }
-        h2 { color: #e67e22; font-size: 22px; }
-        
-        .screen { display: none; animation: fadeIn 0.4s; }
-        .active-screen { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ボタンデザイン（ぽってりした可愛い形） */
-        .btn { 
-            background: #74b9ff; color: white; border: none; padding: 15px 25px; 
-            font-size: 16px; border-radius: 30px; cursor: pointer; margin: 10px; 
-            transition: 0.2s; font-weight: bold; font-family: inherit;
-            box-shadow: 0 4px 0 #0984e3;
+        /* ===== 背景装飾 ===== */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255,107,53,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(162,155,254,0.10) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(253,203,110,0.07) 0%, transparent 60%);
         }
-        .btn:hover { transform: translateY(2px); box-shadow: 0 2px 0 #0984e3; }
-        .btn:active { transform: translateY(4px); box-shadow: none; }
-        
-        .btn-danger { background: #ff7675; box-shadow: 0 4px 0 #d63031; }
-        .btn-danger:hover { box-shadow: 0 2px 0 #d63031; }
-        .btn-gray { background: #b2bec3; box-shadow: 0 4px 0 #636e72; }
-        .btn-gray:hover { box-shadow: 0 2px 0 #636e72; }
-        
-        /* QNKSパズル用 */
-        .card-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
-        .q-card { 
-            background: #fff; border: 3px solid #fdcb6e; padding: 12px; 
-            border-radius: 12px; cursor: pointer; font-weight: bold; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;
+
+        #app-container {
+            max-width: 660px; margin: 0 auto;
+            background: var(--card-bg);
+            padding: 22px 20px;
+            border-radius: 24px;
+            box-shadow: 0 16px 40px rgba(255,107,53,0.12), 0 2px 8px rgba(0,0,0,0.04);
+            border: 3px solid var(--border);
+            position: relative; overflow: hidden;
         }
-        .q-card:hover { background: #ffeaa7; transform: scale(1.05); }
-        .slot-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
-        .slot { width: 140px; height: 60px; border: 3px dashed #b2bec3; border-radius: 12px; display: flex; justify-content: center; align-items: center; background: #fdfefe; font-size: 14px; font-weight: bold; padding: 5px; box-sizing: border-box; text-align: center; }
-        .arrow { font-size: 28px; color: #b2bec3; font-weight: bold; }
+        #app-container::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent1), var(--accent2), var(--accent3));
+            border-radius: 24px 24px 0 0;
+        }
 
-        /* 三権分立用 */
-        .meter-box { margin: 20px 0; text-align: left; position: relative; }
-        .meter-bg { background: #dfe6e9; width: 100%; height: 35px; border-radius: 20px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-        .meter-fill { height: 100%; transition: width 0.4s ease-out, background 0.4s; display: flex; align-items: center; }
-        .meter-text { position: absolute; top: 8px; left: 15px; font-size: 15px; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.6); }
-        .meter-status { position: absolute; right: 15px; top: 8px; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 0px white; }
-        .action-grid { display: grid; grid-template-columns: 1fr; gap: 15px; text-align: left; }
-        .action-btn-wrap { background: #f1f2f6; border-radius: 15px; padding: 10px; border: 2px solid #dfe4ea; }
-        .action-desc { font-size: 12px; color: #57606f; margin-top: 5px; text-align: center; }
+        h1 {
+            color: var(--primary); font-size: 22px; font-weight: 900;
+            text-align: center;
+            border-bottom: 3px dashed var(--border);
+            padding-bottom: 12px; margin: 8px 0 14px;
+            letter-spacing: 0.02em;
+        }
+        h2 { color: var(--primary); font-size: 19px; font-weight: 700; text-align: center; margin: 0 0 12px; }
 
-        /* メッセージエリア */
-        #message-area { margin-top: 20px; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .msg-success { background: #a29bfe; color: white; box-shadow: 0 4px 0 #6c5ce7; }
-        .msg-error { background: #ff7675; color: white; box-shadow: 0 4px 0 #d63031; }
-        .msg-info { background: #81ecec; color: #00cec9; background: #e0ffff; border: 2px solid #00cec9; }
+        /* ===== スクリーン切り替え ===== */
+        .screen { display: none; }
+        .active-screen { display: block; animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
+        /* ===== ステータスバー ===== */
+        #status-bar {
+            background: linear-gradient(135deg, #fff5ee, #fff0e8);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            display: flex; justify-content: space-around; align-items: center;
+            gap: 8px; flex-wrap: wrap;
+        }
+        .status-item {
+            font-size: 13px; font-weight: 700; color: var(--text-light);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .status-item .val {
+            color: var(--primary); font-size: 16px; font-weight: 900;
+        }
+        #xp-bar-wrap {
+            width: 100%; height: 8px;
+            background: #f0e8e0; border-radius: 99px; overflow: hidden; margin-top: 6px;
+        }
+        #xp-bar-fill {
+            height: 100%; border-radius: 99px;
+            background: linear-gradient(90deg, var(--primary), var(--accent3));
+            transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        /* ===== メッセージエリア ===== */
+        #message-area {
+            padding: 13px 16px; border-radius: var(--radius-sm);
+            font-weight: 700; font-size: 14px;
+            margin-bottom: 14px; transition: all 0.3s;
+            text-align: center; line-height: 1.5;
+        }
+        .msg-info    { background: #e8f4fd; color: #2980b9; border: 2px solid #aed6f1; }
+        .msg-success { background: linear-gradient(135deg, #00b894, #00cec9); color: white; box-shadow: 0 4px 12px rgba(0,184,148,0.3); }
+        .msg-error   { background: linear-gradient(135deg, #ff7675, #d63031); color: white; box-shadow: 0 4px 12px rgba(214,48,49,0.3); }
+
+        /* ===== ボタン ===== */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white; border: none; padding: 14px 22px;
+            font-size: 15px; border-radius: 50px; cursor: pointer;
+            margin: 6px; font-weight: 700; font-family: inherit;
+            box-shadow: 0 5px 0 #0568b5, 0 6px 12px rgba(9,132,227,0.25);
+            transition: transform 0.12s, box-shadow 0.12s;
+            width: 82%; max-width: 320px;
+            letter-spacing: 0.02em;
+            user-select: none;
+        }
+        .btn:hover  { transform: translateY(2px); box-shadow: 0 3px 0 #0568b5, 0 4px 8px rgba(9,132,227,0.2); }
+        .btn:active { transform: translateY(5px); box-shadow: 0 0px 0 #0568b5; }
+
+        .btn-orange { background: linear-gradient(135deg, #ff7675, var(--primary)); box-shadow: 0 5px 0 var(--primary-dark), 0 6px 12px rgba(255,107,53,0.3); }
+        .btn-orange:hover { box-shadow: 0 3px 0 var(--primary-dark); }
+        .btn-orange:active { box-shadow: none; }
+
+        .btn-purple { background: linear-gradient(135deg, #a29bfe, #6c5ce7); box-shadow: 0 5px 0 #4834d4, 0 6px 12px rgba(108,92,231,0.3); }
+        .btn-purple:hover { box-shadow: 0 3px 0 #4834d4; }
+        .btn-purple:active { box-shadow: none; }
+
+        .btn-green  { background: linear-gradient(135deg, #55efc4, #00b894); box-shadow: 0 5px 0 #007a63, 0 6px 12px rgba(0,184,148,0.3); color: #004d3f; }
+        .btn-green:hover { box-shadow: 0 3px 0 #007a63; }
+        .btn-green:active { box-shadow: none; }
+
+        .btn-yellow { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); box-shadow: 0 5px 0 #c69a1e, 0 6px 12px rgba(253,203,110,0.3); color: #5a3e00; }
+        .btn-yellow:hover { box-shadow: 0 3px 0 #c69a1e; }
+        .btn-yellow:active { box-shadow: none; }
+
+        .btn-gray { background: linear-gradient(135deg, #dfe6e9, #b2bec3); box-shadow: 0 5px 0 #7f8c8d, 0 6px 8px rgba(0,0,0,0.1); color: #4a4a4a; }
+        .btn-gray:hover { box-shadow: 0 3px 0 #7f8c8d; }
+        .btn-gray:active { box-shadow: none; }
+
+        .btn-sm { padding: 10px 18px; font-size: 13px; width: auto; max-width: none; }
+
+        /* ===== ホーム画面 ===== */
+        .mode-cards { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 14px 0; }
+        .mode-card {
+            background: linear-gradient(135deg, #fff, #f8f4ff);
+            border: 2px solid var(--border); border-radius: 16px;
+            padding: 14px 16px; cursor: pointer;
+            display: flex; align-items: center; gap: 12px;
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        }
+        .mode-card:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 20px rgba(255,107,53,0.13); border-color: var(--primary); }
+        .mode-card:active { transform: translateY(0) scale(0.99); }
+        .mode-icon { font-size: 34px; flex-shrink: 0; }
+        .mode-info { text-align: left; }
+        .mode-title { font-size: 16px; font-weight: 900; color: var(--text); }
+        .mode-desc  { font-size: 12px; color: var(--text-light); margin-top: 3px; font-weight: 400; }
+
+        /* ===== QNKS ===== */
+        .slot-container { display: flex; justify-content: center; align-items: center; gap: 4px; margin: 14px 0; flex-wrap: wrap; }
+        .slot {
+            width: 120px; min-height: 56px;
+            border: 3px dashed #b2bec3; border-radius: 12px;
+            display: flex; justify-content: center; align-items: center;
+            background: #fdfefe; font-size: 12px; font-weight: 700;
+            padding: 6px; text-align: center; color: #aaa;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .slot.filled { border-color: var(--accent2); background: #e8fff8; color: var(--text); border-style: solid; }
+        .arrow { font-size: 22px; color: #ccc; }
+        .card-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .q-card {
+            background: white; border: 2px solid var(--accent3);
+            padding: 10px 14px; border-radius: 10px; cursor: pointer;
+            font-weight: 700; font-size: 13px;
+            box-shadow: 0 3px 8px rgba(253,203,110,0.25);
+            transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+            user-select: none;
+        }
+        .q-card:hover  { background: #ffeaa7; transform: scale(1.06); box-shadow: 0 6px 14px rgba(253,203,110,0.4); }
+        .q-card:active { transform: scale(0.97); }
+        .difficulty-badge {
+            display: inline-block; font-size: 13px;
+            background: #ffeaa7; color: #a0620a;
+            border-radius: 8px; padding: 3px 10px;
+            font-weight: 700; margin-bottom: 8px;
+        }
+        .qnks-question {
+            font-weight: 700; color: var(--primary-dark);
+            background: linear-gradient(135deg, #fff5ee, #ffe8d6);
+            border: 2px solid var(--border); padding: 12px 14px;
+            border-radius: 12px; margin-bottom: 10px;
+            font-size: 15px; text-align: left;
+        }
+
+        /* ===== 権利バトル ===== */
+        .scenario-card {
+            background: linear-gradient(135deg, var(--accent1), #6c5ce7);
+            color: white; padding: 16px; border-radius: 14px;
+            font-size: 15px; font-weight: 700; margin-bottom: 14px;
+            text-align: center; box-shadow: 0 6px 16px rgba(108,92,231,0.3);
+        }
+        .rights-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .rights-options .btn { width: 100%; max-width: none; margin: 0; }
+        .rights-score-bar {
+            display: flex; justify-content: center; gap: 6px; margin: 10px 0;
+        }
+        .score-dot {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #dfe6e9; border: 2px solid #ccc;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .score-dot.correct { background: var(--accent2); border-color: var(--accent2-dark); transform: scale(1.2); }
+        .score-dot.wrong   { background: #ff7675; border-color: #d63031; }
+
+        /* ===== 三権分立 ===== */
+        .meter-box { margin: 10px 0; position: relative; }
+        .meter-label { font-size: 13px; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .meter-status-badge {
+            font-size: 11px; padding: 2px 8px; border-radius: 99px;
+            font-weight: 700; color: white;
+        }
+        .meter-bg { background: #eee; height: 30px; border-radius: 99px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.08); }
+        .meter-fill { height: 100%; border-radius: 99px; transition: width 0.45s cubic-bezier(0.34,1.56,0.64,1), background 0.4s; display: flex; align-items: center; padding-left: 12px; }
+        .meter-fill-label { font-size: 13px; font-weight: 900; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.4); white-space: nowrap; }
+        .power-turn-badge {
+            display: inline-block; background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white; font-size: 28px; font-weight: 900;
+            border-radius: 50%; width: 60px; height: 60px;
+            line-height: 60px; text-align: center;
+            box-shadow: 0 4px 12px rgba(214,48,49,0.4);
+            margin: 8px auto; display: block; transition: transform 0.2s;
+        }
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+        .action-wrap {
+            background: #f9fafb; border: 2px solid #eee;
+            border-radius: 14px; padding: 10px; text-align: center;
+        }
+        .action-wrap .btn { width: 100%; max-width: none; margin: 0 0 4px; font-size: 13px; padding: 10px; }
+        .action-desc { font-size: 11px; color: var(--text-light); font-weight: 400; }
+
+        /* ===== マーク（⭕❌）オーバーレイ ===== */
+        #mark-overlay {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 160px; z-index: 1000;
+            pointer-events: none; display: none;
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+        }
+        .mark-show { animation: markPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes markPop {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(-20deg); }
+            60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9) rotate(0deg); }
+        }
+
+        /* ===== モーダル（カスタムalert/解説） ===== */
+        #modal-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px; display: none;
+        }
+        #modal-overlay.show { display: flex; animation: fadeOverlay 0.2s; }
+        @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+        #modal-box {
+            background: white; border-radius: 22px;
+            padding: 28px 24px; max-width: 440px; width: 100%;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+            text-align: center;
+            animation: modalSlide 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalSlide {
+            from { transform: scale(0.7) translateY(30px); opacity: 0; }
+            to   { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        #modal-icon { font-size: 56px; margin-bottom: 10px; }
+        #modal-title { font-size: 20px; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
+        #modal-body  { font-size: 14px; color: var(--text); line-height: 1.7; margin-bottom: 18px; white-space: pre-wrap; }
+        #modal-close { /* uses .btn */ }
+
+        /* ===== 解説パネル ===== */
+        .explanation-panel {
+            background: linear-gradient(135deg, #f0fff8, #e8f5ff);
+            border: 2px solid var(--accent2); border-radius: 14px;
+            padding: 14px; margin: 10px 0;
+            text-align: left; display: none;
+            animation: slideUp 0.3s ease;
+        }
+        .explanation-panel.show { display: block; }
+        .exp-title { font-weight: 900; color: var(--accent2-dark); font-size: 14px; margin-bottom: 6px; }
+        .exp-body  { font-size: 13px; color: var(--text); line-height: 1.7; }
+        .exp-wrong { background: linear-gradient(135deg, #fff0f0, #ffe8e8); border-color: #ff7675; }
+        .exp-wrong .exp-title { color: #d63031; }
+
+        /* ===== ふりかえりカード ===== */
+        .review-card {
+            background: linear-gradient(135deg, #fff9e6, #fff3cc);
+            border: 2px solid var(--accent3); border-radius: 16px;
+            padding: 16px; margin: 12px 0; text-align: left;
+        }
+        .review-title { font-size: 15px; font-weight: 900; color: #a0620a; margin-bottom: 10px; text-align: center; }
+        .review-item { display: flex; gap: 8px; margin-bottom: 7px; font-size: 13px; align-items: flex-start; }
+        .review-item-icon { font-size: 16px; flex-shrink: 0; }
+        .review-item-text { line-height: 1.5; }
+
+        /* ===== バッジ ===== */
+        .badge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 14px; }
+        .badge-item {
+            background: #f8f9fa; border: 2px solid #dfe6e9;
+            padding: 14px 10px; border-radius: 14px; font-size: 13px;
+            font-weight: 700; text-align: center;
+            transition: transform 0.15s;
+        }
+        .badge-item:hover { transform: scale(1.04); }
+        .badge-owned { background: linear-gradient(135deg, #fff9e6, #ffeaa7); border-color: var(--accent3); color: #7d5200; }
+        .badge-desc { font-size: 11px; color: var(--text-light); margin-top: 5px; font-weight: 400; }
+        .badge-progress { color: var(--primary); font-weight: 700; }
+
+        /* ===== 紙吹雪 ===== */
+        #confetti-container {
+            position: fixed; inset: 0; pointer-events: none;
+            z-index: 900; overflow: hidden;
+        }
+        .confetti-piece {
+            position: absolute; width: 10px; height: 12px;
+            border-radius: 2px;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ===== レスポンシブ調整 ===== */
+        @media (max-width: 480px) {
+            #app-container { padding: 16px 12px; }
+            h1 { font-size: 18px; }
+            .slot { width: 100px; font-size: 11px; }
+            .action-grid { grid-template-columns: 1fr; }
+            .btn { font-size: 14px; padding: 13px 18px; }
+        }
     </style>
 </head>
 <body>
 
 <div id="app-container">
     <h1>✨ 君が創る！みんなの街と未来 ✨</h1>
-    
+
+    <div id="status-bar">
+        <div class="status-item">👑 <span id="ui-rank" class="val">見習い市民</span></div>
+        <div class="status-item">⭐ EXP: <span id="ui-score" class="val">0</span></div>
+        <div id="xp-bar-wrap" style="width:100%;"><div id="xp-bar-fill" style="width:0%;"></div></div>
+    </div>
+
     <div id="message-area" class="msg-info">モードを選んでゲームを始めよう！</div>
 
+    <!-- ===================== ホーム ===================== -->
     <div id="screen-home" class="screen active-screen">
-        <p style="font-size: 18px; font-weight: bold;">キミの力で社会の課題を解決しよう！</p>
-        <button class="btn" onclick="startQNKS()">🔍 QNKS 街づくりクエスト</button><br>
-        <button class="btn" style="background: #a29bfe; box-shadow: 0 4px 0 #6c5ce7;" onclick="startRightsBattle()">🛡️ 権利と義務 カードバトル</button><br>
-        <button class="btn" style="background: #00b894; box-shadow: 0 4px 0 #00b894;" onclick="startPowerBalance()">⚖️ 三権分立パワーバランス</button>
+        <div class="mode-cards">
+            <div class="mode-card" onclick="startQNKS()">
+                <div class="mode-icon">🔍</div>
+                <div class="mode-info">
+                    <div class="mode-title">QNKS 街づくりクエスト</div>
+                    <div class="mode-desc">課題発見→解決策の手順を正しく組み立てよう！</div>
+                </div>
+            </div>
+            <div class="mode-card" onclick="startRightsBattle()">
+                <div class="mode-icon">🛡️</div>
+                <div class="mode-info">
+                    <div class="mode-title">権利と義務 カードバトル</div>
+                    <div class="mode-desc">場面に合った権利・義務を選ぼう！全5問</div>
+                </div>
+            </div>
+            <div class="mode-card" onclick="startPowerBalance()">
+                <div class="mode-icon">⚖️</div>
+                <div class="mode-info">
+                    <div class="mode-title">三権分立 パワーバランス</div>
+                    <div class="mode-desc">国会・内閣・裁判所のバランスを10ターン保て！</div>
+                </div>
+            </div>
+        </div>
+        <hr style="border: 1px dashed var(--border); margin: 14px 0;">
+        <button class="btn btn-gray btn-sm" onclick="showProfile()">🏅 マイページ（バッジコレクション）</button>
     </div>
 
+    <!-- ===================== プロフィール ===================== -->
+    <div id="screen-profile" class="screen">
+        <h2>🏅 マイページ</h2>
+        <p style="text-align:center; font-size:13px; color:var(--text-light); margin-bottom:6px;">ゲームをプレイしてバッジを集めよう！</p>
+        <div id="badge-area" class="badge-grid"></div>
+        <div style="text-align:center; margin-top:18px;">
+            <button class="btn btn-gray btn-sm" onclick="goHome()">🏠 ホームに戻る</button>
+        </div>
+    </div>
+
+    <!-- ===================== QNKS ===================== -->
     <div id="screen-qnks" class="screen">
         <h2>🔍 QNKS 街づくりクエスト</h2>
-        <p id="qnks-q" style="font-weight: bold; color: #d35400; font-size: 18px; background: #ffeaa7; padding: 10px; border-radius: 10px;"></p>
-        <p>証拠カードを選んで、解決までの正しい手順を作ろう！</p>
-        
+        <div id="qnks-diff" class="difficulty-badge">難易度: ★☆☆</div>
+        <div id="qnks-q" class="qnks-question"></div>
+        <p style="font-size:13px; color:var(--text-light); text-align:center; margin:4px 0 10px;">カードを選んで、解決までの正しい手順を作ろう！</p>
         <div class="slot-container">
-            <div id="slot0" class="slot">ステップ1</div><div class="arrow">→</div>
-            <div id="slot1" class="slot">ステップ2</div><div class="arrow">→</div>
-            <div id="slot2" class="slot">ステップ3</div>
+            <div id="slot0" class="slot">ステップ１</div>
+            <div class="arrow">→</div>
+            <div id="slot1" class="slot">ステップ２</div>
+            <div class="arrow">→</div>
+            <div id="slot2" class="slot">ステップ３</div>
         </div>
-
         <div id="qnks-cards" class="card-container"></div>
-
-        <button class="btn" onclick="checkQNKS()">✅ 解決策を発動</button>
-        <button class="btn btn-danger" onclick="resetQNKS()">🔄 やり直す</button>
-        <br><button class="btn btn-gray" onclick="goHome()">🏠 ホームに戻る</button>
+        <div id="qnks-explanation" class="explanation-panel"></div>
+        <div style="text-align:center;">
+            <button class="btn btn-green btn-sm" onclick="checkQNKS()">✅ 解決策を発動！</button>
+            <button class="btn btn-orange btn-sm" onclick="resetQNKS()">🔄 やり直す</button>
+            <button class="btn btn-gray btn-sm" onclick="goHome()">🏠 戻る</button>
+        </div>
     </div>
 
+    <!-- ===================== 権利バトル ===================== -->
     <div id="screen-rights" class="screen">
         <h2>🛡️ 権利と義務 カードバトル</h2>
-        <p id="rights-scenario" style="font-size: 18px; font-weight: bold; background: #e0b0ff; color: white; padding: 15px; border-radius: 12px;"></p>
-        <p>この場面に関係する「権利」または「義務」はどれ？</p>
-        
-        <div id="rights-options" class="card-container"></div>
-        
-        <p>スコア: <span id="rights-score" style="font-size: 24px; font-weight: bold; color: #6c5ce7;">0</span> / 5</p>
-        <button class="btn btn-gray" onclick="goHome()">🏠 ホームに戻る</button>
+        <div class="rights-score-bar" id="rights-score-bar"></div>
+        <div id="rights-scenario" class="scenario-card"></div>
+        <div id="rights-options" class="rights-options"></div>
+        <div id="rights-explanation" class="explanation-panel"></div>
+        <div style="text-align:center;">
+            <button class="btn btn-gray btn-sm" onclick="goHome()">🏠 途中棄権する</button>
+        </div>
     </div>
 
-    <div id="screen-miniquiz" class="screen">
-        <h2>💡 ミニ知識クイズ！</h2>
-        <p>ゲームお疲れ様！最後に1問だけ答えてね。</p>
-        <p id="quiz-q" style="font-size: 18px; font-weight: bold; background: #fff3cd; padding: 15px; border-radius: 12px;"></p>
-        <div id="quiz-options" class="card-container"></div>
-    </div>
-
+    <!-- ===================== 三権分立 ===================== -->
     <div id="screen-power" class="screen">
-        <h2>⚖️ 三権分立パワーバランス</h2>
-        <p>国会・内閣・裁判所の力が偏らないように、<b>10ターン</b>生き残れ！<br>（どれか1つでも0%か100%になるとゲームオーバー）</p>
-        <p>残りターン: <span id="power-turn" style="font-size: 24px; font-weight: bold; color: #d63031;">10</span></p>
+        <h2>⚖️ 三権分立 パワーバランス</h2>
+        <p style="text-align:center;font-size:13px;color:var(--text-light);">権力が偏らないように<b>10ターン</b>生き残れ！</p>
+        <div id="power-turn" class="power-turn-badge">10</div>
 
         <div class="meter-box">
-            <div class="meter-bg"><div id="meter-diet" class="meter-fill" style="width: 33%; background: #fdcb6e;"></div><span class="meter-text">🏛️ 国会 (立法)</span><span id="stat-diet" class="meter-status"></span></div>
+            <div class="meter-label">🏛️ 国会（立法権）<span id="stat-diet" class="meter-status-badge" style="background:#e1a62a;"></span></div>
+            <div class="meter-bg"><div id="meter-diet" class="meter-fill" style="width:33%;background:#fdcb6e;"><span class="meter-fill-label">国会</span></div></div>
         </div>
         <div class="meter-box">
-            <div class="meter-bg"><div id="meter-cabinet" class="meter-fill" style="width: 33%; background: #55efc4;"></div><span class="meter-text">🏢 内閣 (行政)</span><span id="stat-cabinet" class="meter-status"></span></div>
+            <div class="meter-label">🏢 内閣（行政権）<span id="stat-cabinet" class="meter-status-badge" style="background:#007a63;"></span></div>
+            <div class="meter-bg"><div id="meter-cabinet" class="meter-fill" style="width:33%;background:#55efc4;"><span class="meter-fill-label">内閣</span></div></div>
         </div>
         <div class="meter-box">
-            <div class="meter-bg"><div id="meter-court" class="meter-fill" style="width: 33%; background: #a29bfe;"></div><span class="meter-text">⚖️ 裁判所 (司法)</span><span id="stat-court" class="meter-status"></span></div>
+            <div class="meter-label">⚖️ 裁判所（司法権）<span id="stat-court" class="meter-status-badge" style="background:#4834d4;"></span></div>
+            <div class="meter-bg"><div id="meter-court" class="meter-fill" style="width:33%;background:#a29bfe;"><span class="meter-fill-label">裁判所</span></div></div>
         </div>
 
         <div class="action-grid">
-            <div class="action-btn-wrap">
-                <button class="btn" style="width: 100%; margin: 0;" onclick="actPower('law')">📜 法律を作る</button>
-                <div class="action-desc">国会がルールを決める(国会UP) / 内閣は縛られる(内閣DOWN)</div>
+            <div class="action-wrap">
+                <button class="btn btn-yellow" onclick="actPower('law')">📜 法律を作る</button>
+                <div class="action-desc">国会↑ / 内閣↓</div>
             </div>
-            <div class="action-btn-wrap">
-                <button class="btn" style="width: 100%; margin: 0; background: #a29bfe; box-shadow: 0 4px 0 #6c5ce7;" onclick="actPower('judge')">🔨 違憲審査をする</button>
-                <div class="action-desc">裁判所が法律をチェックする(裁判所UP) / 国会はダメ出しされる(国会DOWN)</div>
+            <div class="action-wrap">
+                <button class="btn btn-purple" onclick="actPower('judge')">🔨 違憲審査をする</button>
+                <div class="action-desc">裁判所↑ / 国会↓</div>
             </div>
-            <div class="action-btn-wrap">
-                <button class="btn" style="width: 100%; margin: 0; background: #55efc4; box-shadow: 0 4px 0 #00b894;" onclick="actPower('dissolve')">🚪 衆議院を解散する</button>
-                <div class="action-desc">内閣が国会を解散させる(内閣UP) / 国会はクビになる(国会DOWN)</div>
+            <div class="action-wrap">
+                <button class="btn btn-green" onclick="actPower('dissolve')">🚪 衆議院を解散</button>
+                <div class="action-desc">内閣↑ / 国会↓</div>
             </div>
-            <div class="action-btn-wrap">
-                <button class="btn" style="width: 100%; margin: 0; background: #fdcb6e; box-shadow: 0 4px 0 #e1b12c; color: #333;" onclick="actPower('appoint')">👨‍⚖️ 最高裁長官を指名する</button>
-                <div class="action-desc">内閣がトップを選ぶ(内閣UP) / 裁判所は選ばれる側(裁判所DOWN)</div>
+            <div class="action-wrap">
+                <button class="btn" onclick="actPower('appoint')">👨‍⚖️ 最高裁長官を指名</button>
+                <div class="action-desc">内閣↑ / 裁判所↓</div>
             </div>
         </div>
-        <button class="btn btn-gray" style="margin-top:20px;" onclick="goHome()">🏠 ホームに戻る</button>
+        <div id="power-explanation" class="explanation-panel" style="display:none;"></div>
+        <div style="text-align:center;">
+            <button class="btn btn-gray btn-sm" onclick="goHome()">🏠 戻る</button>
+        </div>
     </div>
-
 </div>
 
+<!-- 判定マーク -->
+<div id="mark-overlay"></div>
+
+<!-- モーダル -->
+<div id="modal-overlay">
+    <div id="modal-box">
+        <div id="modal-icon">🎉</div>
+        <div id="modal-title">タイトル</div>
+        <div id="modal-body">本文</div>
+        <button class="btn" id="modal-close" onclick="closeModal()">OK！</button>
+    </div>
+</div>
+
+<!-- 紙吹雪コンテナ -->
+<div id="confetti-container"></div>
+
 <script>
-    // --- 音声生成 (Web Audio API) ---
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let audioCtx;
+// ============================================================
+// セーブデータ & バッジシステム
+// ============================================================
+let playerData = {
+    totalScore: 0, qnksClear: 0, powerClear: 0,
+    rightsCorrect: 0, rightsPerfect: false, badges: []
+};
+let previousRank = "";
 
-    function initAudio() {
-        if (!audioCtx) audioCtx = new AudioContext();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
+const RANKS = [
+    [0,    "見習い市民"],
+    [10,   "関心をもった市民"],
+    [30,   "有権者"],
+    [60,   "政治に参加する市民"],
+    [90,   "駆け出し議員"],
+    [130,  "新人議員"],
+    [170,  "若手議員"],
+    [210,  "中堅議員"],
+    [260,  "ベテラン議員"],
+    [320,  "政務官"],
+    [380,  "副大臣"],
+    [450,  "大臣"],
+    [550,  "内閣総理大臣"]
+];
 
-    function playSound(type) {
-        initAudio();
-        if(!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        const now = audioCtx.currentTime;
-        if (type === 'click') {
-            osc.type = 'sine'; osc.frequency.setValueAtTime(800, now);
-            gainNode.gain.setValueAtTime(0.1, now); gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-            osc.start(now); osc.stop(now + 0.1);
-        } else if (type === 'success') {
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, now); // C
-            osc.frequency.setValueAtTime(659.25, now + 0.1); // E
-            osc.frequency.setValueAtTime(783.99, now + 0.2); // G
-            gainNode.gain.setValueAtTime(0.15, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-            osc.start(now); osc.stop(now + 0.4);
-        } else if (type === 'error') {
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now);
-            osc.frequency.setValueAtTime(150, now + 0.2);
-            gainNode.gain.setValueAtTime(0.15, now); gainNode.gain.linearRampToValueAtTime(0, now + 0.4);
-            osc.start(now); osc.stop(now + 0.4);
+function getRank(score) {
+    let rank = RANKS[0][1];
+    for (const [min, name] of RANKS) { if (score >= min) rank = name; }
+    return rank;
+}
+function getRankInfo(score) {
+    let idx = 0;
+    for (let i = 0; i < RANKS.length; i++) { if (score >= RANKS[i][0]) idx = i; }
+    const current = RANKS[idx];
+    const next = RANKS[idx + 1];
+    const progress = next ? (score - current[0]) / (next[0] - current[0]) : 1;
+    return { name: current[1], progress: Math.min(progress, 1), nextName: next ? next[1] : null, nextScore: next ? next[0] : null };
+}
+
+function updateStatusUI() {
+    const info = getRankInfo(playerData.totalScore);
+    document.getElementById('ui-rank').innerText = info.name;
+    document.getElementById('ui-score').innerText = playerData.totalScore;
+    document.getElementById('xp-bar-fill').style.width = (info.progress * 100) + '%';
+}
+
+function loadData() {
+    const d = localStorage.getItem("civicsGameData_v2");
+    if (d) playerData = JSON.parse(d);
+    previousRank = getRank(playerData.totalScore);
+    updateStatusUI();
+}
+
+function saveData() {
+    localStorage.setItem("civicsGameData_v2", JSON.stringify(playerData));
+    updateStatusUI();
+}
+
+const badges = [
+    { id: "first_clear",   icon: "🌟", name: "はじめの一歩",    desc: "初めて経験値を獲得", progress: () => "経験値をゲットしよう",           condition: d => d.totalScore >= 1 },
+    { id: "qnks_master",   icon: "🔍", name: "課題解決マスター", desc: "QNKSを3回クリア",   progress: d => `${d.qnksClear} / 3 回`,          condition: d => d.qnksClear >= 3 },
+    { id: "power_master",  icon: "⚖️", name: "バランスマスター", desc: "三権分立をクリア",   progress: d => `${d.powerClear} / 1 回`,         condition: d => d.powerClear >= 1 },
+    { id: "rights_master", icon: "🛡️", name: "人権マスター",    desc: "権利バトル累計5問正解", progress: d => `${d.rightsCorrect} / 5 問`,   condition: d => d.rightsCorrect >= 5 },
+    { id: "perfect_rights",icon: "💯", name: "パーフェクト！",  desc: "権利バトルで全問正解", progress: () => "1プレイで全問正解！",            condition: d => d.rightsPerfect === true },
+    { id: "prime_minister",icon: "👑", name: "トップリーダー",  desc: "内閣総理大臣ランクへ", progress: () => "経験値を溜めよう！",            condition: d => getRank(d.totalScore) === "内閣総理大臣" }
+];
+
+function checkBadges() {
+    badges.forEach(badge => {
+        if (!playerData.badges.includes(badge.id) && badge.condition(playerData)) {
+            playerData.badges.push(badge.id);
+            launchConfetti();
+            playSound('badge');
+            showModal('🏅', `バッジ獲得！`, `「${badge.icon} ${badge.name}」\n${badge.desc}`);
         }
+    });
+    const newRank = getRank(playerData.totalScore);
+    if (previousRank !== "" && newRank !== previousRank) {
+        launchConfetti();
+        playSound('rankup');
+        showModal('👑', 'ランクアップ！', `「${newRank}」になった！\nこれからも街を良くしていこう！`);
     }
+    previousRank = newRank;
+    saveData();
+}
 
-    // --- 共通ユーティリティ ---
-    function showScreen(screenId) {
-        playSound('click');
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById(screenId).classList.add('active-screen');
+window.onload = loadData;
+
+// ============================================================
+// バッジページ
+// ============================================================
+function showProfile() {
+    showScreen('screen-profile');
+    const area = document.getElementById("badge-area");
+    area.innerHTML = "";
+    badges.forEach(badge => {
+        const owned = playerData.badges.includes(badge.id);
+        const div = document.createElement("div");
+        div.className = owned ? 'badge-item badge-owned' : 'badge-item';
+        div.innerHTML = owned
+            ? `${badge.icon}<br><b>${badge.name}</b><div class="badge-desc">${badge.desc}</div>`
+            : `🔒<br><b>${badge.name}</b><div class="badge-desc badge-progress">${badge.progress(playerData)}</div>`;
+        area.appendChild(div);
+    });
+}
+
+// ============================================================
+// 共通ユーティリティ
+// ============================================================
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function initAudio() {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playTone(freq, type, dur, gain, delay = 0) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.connect(g); g.connect(audioCtx.destination);
+    const now = audioCtx.currentTime + delay;
+    osc.type = type; osc.frequency.setValueAtTime(freq, now);
+    g.gain.setValueAtTime(gain, now); g.gain.exponentialRampToValueAtTime(0.01, now + dur);
+    osc.start(now); osc.stop(now + dur);
+}
+function playSound(type) {
+    initAudio(); if (!audioCtx) return;
+    if (type === 'click') {
+        playTone(700, 'sine', 0.08, 0.1);
+    } else if (type === 'success') {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => playTone(f, 'triangle', 0.2, 0.15, i * 0.08));
+    } else if (type === 'error') {
+        playTone(200, 'sawtooth', 0.15, 0.12);
+        playTone(150, 'sawtooth', 0.15, 0.10, 0.15);
+    } else if (type === 'badge') {
+        [523, 659, 784, 1047, 1319].forEach((f, i) => playTone(f, 'triangle', 0.25, 0.12, i * 0.07));
+    } else if (type === 'rankup') {
+        [392, 523, 659, 784, 1047].forEach((f, i) => playTone(f, 'triangle', 0.3, 0.15, i * 0.1));
     }
-    function showMsg(text, type) {
-        const msgArea = document.getElementById('message-area');
-        msgArea.innerHTML = text; // HTMLタグを許容
-        msgArea.className = '';
-        msgArea.classList.add(`msg-${type}`);
+}
+
+function showMark(isCorrect) {
+    const el = document.getElementById('mark-overlay');
+    el.innerText = isCorrect ? '⭕' : '❌';
+    el.className = 'mark-show';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; el.className = ''; }, 700);
+}
+
+function showScreen(id) {
+    playSound('click');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+    document.getElementById(id).classList.add('active-screen');
+}
+function showMsg(text, type) {
+    const el = document.getElementById('message-area');
+    el.innerHTML = text; el.className = `msg-${type}`;
+}
+function goHome() {
+    showScreen('screen-home');
+    showMsg('モードを選んでゲームを始めよう！', 'info');
+}
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
     }
-    function goHome() {
-        showScreen('screen-home');
-        showMsg('モードを選んでゲームを始めよう！', 'info');
+    return a;
+}
+
+// ============================================================
+// モーダル（カスタムalert）
+// ============================================================
+let modalQueue = [];
+let modalOpen = false;
+
+function showModal(icon, title, body, onClose = null) {
+    modalQueue.push({ icon, title, body, onClose });
+    if (!modalOpen) processModalQueue();
+}
+function processModalQueue() {
+    if (modalQueue.length === 0) { modalOpen = false; return; }
+    modalOpen = true;
+    const { icon, title, body } = modalQueue.shift();
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-body').innerText = body;
+    document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('show');
+    setTimeout(processModalQueue, 200);
+}
+
+// ============================================================
+// 紙吹雪
+// ============================================================
+function launchConfetti() {
+    const container = document.getElementById('confetti-container');
+    const colors = ['#ff6b35','#fdcb6e','#a29bfe','#55efc4','#ff7675','#74b9ff','#fd79a8'];
+    for (let i = 0; i < 60; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        const size = 8 + Math.random() * 8;
+        el.style.cssText = `
+            left: ${Math.random() * 100}%;
+            width: ${size}px; height: ${size * 1.3}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation-duration: ${1.5 + Math.random() * 1.5}s;
+            animation-delay: ${Math.random() * 0.5}s;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        `;
+        container.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
     }
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+}
+
+// ============================================================
+// 解説パネル表示
+// ============================================================
+function showExplanation(panelId, isCorrect, html) {
+    const panel = document.getElementById(panelId);
+    panel.className = `explanation-panel ${isCorrect ? '' : 'exp-wrong'} show`;
+    panel.innerHTML = `
+        <div class="exp-title">${isCorrect ? '✅ 解説' : '❌ ここが違った！'}</div>
+        <div class="exp-body">${html}</div>
+    `;
+}
+function hideExplanation(panelId) {
+    const panel = document.getElementById(panelId);
+    panel.classList.remove('show');
+    panel.innerHTML = '';
+}
+
+// ============================================================
+// ふりかえりカード表示（モーダル内）
+// ============================================================
+function showReview(title, items) {
+    const body = items.map(([icon, text]) => `${icon} ${text}`).join('\n');
+    showModal('📋', title, body);
+}
+
+// ============================================================
+// 1. QNKS クエスト
+// ============================================================
+const qnksData = [
+    {
+        difficulty: "★☆☆", q: "ゴミのポイ捨てが増えて街が汚れている",
+        n: ["住民の声(アンケート)", "国会(法律でルールを決める)", "内閣(清掃活動や指導を実行)"],
+        fake: ["裁判所(逮捕する)"],
+        explanation: "まず住民の声（Q）を集め、国会が法律（N）を作り、内閣が実行（K）します。裁判所は法の判断をするところで、直接逮捕はしません。"
+    },
+    {
+        difficulty: "★★☆", q: "夜の騒音がひどくて眠れない人がいる",
+        n: ["住民の相談", "国会(騒音に関するルールを決める)", "内閣(取り締まりを行う)"],
+        fake: ["内閣(法律を作る)"],
+        explanation: "法律を作るのは「国会」の仕事です。内閣は法律をもとに政治を実行します。順番が逆にならないように注意しよう！"
+    },
+    {
+        difficulty: "★☆☆", q: "危険な交差点で事故が多い",
+        n: ["市民の要望", "国会(交通ルールを見直す)", "内閣(信号や標識を設置)"],
+        fake: ["裁判所(信号を作る)"],
+        explanation: "信号や標識を設置するのは内閣（行政）の仕事。裁判所は「争い事を解決する」場所で、工事はしません。"
+    },
+    {
+        difficulty: "★★☆", q: "働きすぎで体調を崩す人が増えている",
+        n: ["労働者の訴え", "国会(労働時間のルールを決める)", "内閣(企業へ指導する)"],
+        fake: ["内閣(ルールを決める)"],
+        explanation: "「ルールを決める（立法）」は国会の役割。内閣は決まったルールに基づいて企業を指導します。"
+    },
+    {
+        difficulty: "★☆☆", q: "差別的な発言が広がっている",
+        n: ["国民の問題提起", "国会(差別を禁止する法律)", "内閣(啓発活動を行う)"],
+        fake: ["警察(法律を決める)"],
+        explanation: "警察は法律を「執行」する機関で、法律を作ることはできません。法律を作るのはあくまでも国会です。"
+    },
+    {
+        difficulty: "★☆☆", q: "子どもが安全に通学できない道がある",
+        n: ["保護者の声", "国会(安全対策の制度を作る)", "内閣(ガードレール設置)"],
+        fake: ["裁判所(工事する)"],
+        explanation: "道路の工事・整備は行政（内閣・地方自治体）の仕事。裁判所の役割と混同しないようにしよう。"
+    },
+    {
+        difficulty: "★★☆", q: "ネットで個人情報が流出している",
+        n: ["被害者の訴え", "国会(個人情報保護の法律)", "内閣(監視や指導を行う)"],
+        fake: ["裁判所(法律を作る)"],
+        explanation: "裁判所が法律を作ることはできません。裁判所は「法律が憲法に合っているか」を判断する機関です。"
+    },
+    {
+        difficulty: "★☆☆", q: "災害時の避難がうまくいかない",
+        n: ["住民の不安", "国会(防災のルールを整備)", "内閣(避難所や訓練を実施)"],
+        fake: ["裁判所(避難命令を出す)"],
+        explanation: "避難命令を出したり避難所を整備するのは内閣・行政の仕事。三権の役割をしっかり区別しよう！"
+    },
+    {
+        difficulty: "★★☆", q: "環境問題（温暖化）を改善したい",
+        n: ["国民の意識向上", "国会(環境保護の法律)", "内閣(対策を実行)"],
+        fake: ["裁判所(温度を下げる)"],
+        explanation: "裁判所は気候や自然現象に命令を出す機能はありません。社会の問題は「立法→行政の実行」の流れで解決されます。"
+    },
+    {
+        difficulty: "★★★", q: "国会が作った法律が憲法に違反しているかもしれない",
+        n: ["国民の疑問", "裁判所(違憲審査)", "国会(法律を見直す)"],
+        fake: ["内閣(判決を出す)"],
+        explanation: "これは三権分立の核心！判決を出すのは「裁判所」だけ。内閣に判決を出す権限はありません。違憲審査権は裁判所の大切な役割です。"
+    },
+    {
+        difficulty: "★★★", q: "差別的なおかしなルールが作られそう",
+        n: ["国民の訴え", "裁判所(違憲審査)", "国会(法律を直す)"],
+        fake: ["内閣(違憲審査をする)"],
+        explanation: "違憲審査は「裁判所」だけが持つ権限です。内閣に違憲審査権はありません。これを「司法権の独立」と言います。"
+    },
+    {
+        difficulty: "★☆☆", q: "新しい学校を建てる場所を決めたい",
+        n: ["選挙(代表者を選ぶ)", "国会(話し合って決定)", "内閣(計画を実行)"],
+        fake: ["警察(命令する)"],
+        explanation: "民主主義では「選挙→国会での議論→行政による実行」という流れが基本。警察は治安維持が役割で、政策決定はしません。"
     }
+];
+const knowledgeCards = [
+    "衆議院(465人)", "参議院(248人)", "国会＝法律をつくる",
+    "内閣＝政治を実行する", "裁判所＝争いを解決する",
+    "内閣総理大臣は国会が指名", "裁判所は違憲審査権をもつ", "選挙は18歳以上が投票"
+];
+let currentQnks = null;
+let selectedCards = [];
 
-    // --- 1. QNKS クエスト ---
-    const qnksData = [
-        { q: "Q: 公園にゴミが溢れていてみんな困っている！", n: ["人々の願い(署名)", "国会(法律を作る)", "内閣(予算を使い清掃)"], fake: ["裁判所(逮捕する)"] },
-        { q: "Q: 新しい学校を建てる場所を決めたい！", n: ["選挙(代表者を選ぶ)", "国会(話し合って決定)", "内閣(計画を実行)"], fake: ["警察(命令する)"] },
-        { q: "Q: 差別的なおかしなルールが作られそう！", n: ["国民の訴え", "裁判所(違憲審査)", "国会(法律を直す)"], fake: ["内閣(税金を集める)"] }
-    ];
-    // ① 追加された知識カード
-    const knowledgeCards = [
-        "衆議院（465人）", "参議院（248人）", "国会＝法律をつくる", "内閣＝政治を実行する", 
-        "裁判所＝争いを解決する", "内閣総理大臣は国会が指名", "裁判所は違憲審査権をもつ", 
-        "税金は公共サービスのもと", "選挙は18歳以上が投票", "日本は民主主義の国", 
-        "主権は国民にある", "地方自治＝地域で決める"
-    ];
-    let currentQnks = null;
-    let selectedCards = [];
-
-    function startQNKS() {
-        showScreen('screen-qnks');
-        showMsg('街の情報を集めて、論理を組み立てよう！', 'info');
-        currentQnks = qnksData[Math.floor(Math.random() * qnksData.length)];
-        document.getElementById('qnks-q').innerText = currentQnks.q;
-        resetQNKS();
+function startQNKS() {
+    showScreen('screen-qnks');
+    showMsg('情報を集めて、論理を組み立てよう！', 'info');
+    currentQnks = qnksData[Math.floor(Math.random() * qnksData.length)];
+    document.getElementById('qnks-diff').innerText = `難易度: ${currentQnks.difficulty}`;
+    document.getElementById('qnks-q').innerText = `Q: ${currentQnks.q}`;
+    hideExplanation('qnks-explanation');
+    resetQNKS();
+}
+function resetQNKS() {
+    playSound('click'); selectedCards = [];
+    for (let i = 0; i < 3; i++) {
+        const slot = document.getElementById(`slot${i}`);
+        slot.innerText = `ステップ${['１','２','３'][i]}`;
+        slot.classList.remove('filled');
     }
-
-    function resetQNKS() {
-        playSound('click');
-        selectedCards = [];
-        for(let i=0; i<3; i++) document.getElementById(`slot${i}`).innerText = `ステップ${i+1}`;
-        
-        const cardArea = document.getElementById('qnks-cards');
-        cardArea.innerHTML = '';
-        // ランダムな知識カードを2枚だけ混ぜる
-        let allCards = [...currentQnks.n, ...currentQnks.fake, ...shuffle([...knowledgeCards]).slice(0,2)];
-        shuffle(allCards).forEach(text => {
-            let btn = document.createElement('div');
-            btn.className = 'q-card';
-            btn.innerText = text;
-            btn.onclick = () => selectQnksCard(text, btn);
-            cardArea.appendChild(btn);
-        });
-    }
-
-    function selectQnksCard(text, btnElement) {
-        playSound('click');
-        if (selectedCards.length >= 3) return;
-        selectedCards.push(text);
-        document.getElementById(`slot${selectedCards.length - 1}`).innerText = text;
-        btnElement.style.display = 'none';
-    }
-
-    function checkQNKS() {
-        if (selectedCards.length < 3) {
-            playSound('error');
-            showMsg('カードを3つすべて枠に入れてね！', 'error');
-            return;
-        }
-        let isCorrect = true;
-        for (let i = 0; i < 3; i++) {
-            if (selectedCards[i] !== currentQnks.n[i]) isCorrect = false;
-        }
-
-        if (isCorrect) {
-            playSound('success');
-            showMsg('大正解！見事に解決策が発動し、街が良くなりました！', 'success');
-            setTimeout(startQNKS, 3000);
-        } else {
-            playSound('error');
-            showMsg('うーん、論理の順番が違うか、関係ないカードが混ざっているかも…？', 'error');
-        }
-    }
-
-    // --- 2. 権利と義務 カードバトル ---
-    // ② 強化版データ
-    const rightsDataPlus = [
-        { q: "自分の考えをSNSで発信する", ans: "表現の自由", desc: "意見や考えを自由に伝えることができる権利（憲法21条）", wrong: ["納税の義務", "勤労の義務", "参政権"] },
-        { q: "病気で生活が苦しいとき、国に助けを求める", ans: "生存権", desc: "健康で文化的な生活を送る権利（憲法25条）", wrong: ["財産権", "納税の義務", "表現の自由"] },
-        { q: "税金を納める", ans: "納税の義務", desc: "国民が必ず果たさなければならない義務（憲法30条）", wrong: ["生存権", "参政権", "平等権"] },
-        { q: "選挙で投票する", ans: "参政権", desc: "政治に参加することができる権利", wrong: ["生存権", "教育を受けさせる義務", "思想・良心の自由"] },
-        { q: "子どもに学校で学ばせる", ans: "教育を受けさせる義務", desc: "子どもに教育を受けさせる責任がある（憲法26条）", wrong: ["表現の自由", "参政権", "納税の義務"] },
-        { q: "差別されずに生活する", ans: "平等権", desc: "すべての人が平等に扱われる権利（憲法14条）", wrong: ["参政権", "納税の義務", "勤労の義務"] }
-    ];
-    let currentRightsIndex = 0;
-    let rightsScore = 0;
-    let shuffledRights = [];
-
-    function startRightsBattle() {
-        showScreen('screen-rights');
-        rightsScore = 0;
-        currentRightsIndex = 0;
-        document.getElementById('rights-score').innerText = rightsScore;
-        shuffledRights = shuffle([...rightsDataPlus]).slice(0, 5); 
-        showMsg('場面に合った正しい権利・義務を選ぼう！', 'info');
-        nextRights();
-    }
-
-    function nextRights() {
-        if (currentRightsIndex >= 5) {
-            showMsg(`ゲーム終了！スコアは ${rightsScore} / 5 でした！<br>続いてミニクイズに挑戦！`, rightsScore >= 4 ? 'success' : 'info');
-            setTimeout(startMiniQuiz, 2500); // ミニクイズへ移行
-            return;
-        }
-
-        const data = shuffledRights[currentRightsIndex];
-        document.getElementById('rights-scenario').innerText = `場面：${data.q}`;
-        
-        const optionsArea = document.getElementById('rights-options');
-        optionsArea.innerHTML = '';
-        
-        let options = shuffle([data.ans, ...data.wrong]);
-        options.forEach(opt => {
-            let btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.style.background = '#a29bfe';
-            btn.innerText = opt;
-            btn.onclick = () => checkRightsAns(opt, data);
-            optionsArea.appendChild(btn);
-        });
-    }
-
-    function checkRightsAns(selected, data) {
-        if (selected === data.ans) {
-            rightsScore++;
-            document.getElementById('rights-score').innerText = rightsScore;
-            playSound('success');
-            // ② 解説（desc）を表示
-            showMsg(`正解！✨<br><span style="font-size:14px;">${data.desc}</span>`, 'success');
-        } else {
-            playSound('error');
-            showMsg(`ざんねん！正解は「${data.ans}」だよ。<br><span style="font-size:14px;">${data.desc}</span>`, 'error');
-        }
-        currentRightsIndex++;
-        
-        // ボタンを押せなくする
-        document.querySelectorAll('#rights-options .btn').forEach(b => b.disabled = true);
-        setTimeout(nextRights, 3500); // 解説を読むために少し長く待つ
-    }
-
-    // --- ミニ知識クイズ（④） ---
-    const miniQuiz = [
-        { q: "衆議院の人数は？", options: ["465人", "100人", "700人"], ans: "465人" },
-        { q: "選挙権は何歳から？", options: ["18歳", "20歳", "16歳"], ans: "18歳" },
-        { q: "法律をつくるのはどこ？", options: ["国会", "内閣", "裁判所"], ans: "国会" }
-    ];
-
-    function startMiniQuiz() {
-        showScreen('screen-miniquiz');
-        showMsg('これが分かればカンペキ！', 'info');
-        const qData = miniQuiz[Math.floor(Math.random() * miniQuiz.length)];
-        document.getElementById('quiz-q').innerText = qData.q;
-        
-        const optionsArea = document.getElementById('quiz-options');
-        optionsArea.innerHTML = '';
-        
-        shuffle([...qData.options]).forEach(opt => {
-            let btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.style.background = '#fdcb6e';
-            btn.style.color = '#333';
-            btn.innerText = opt;
-            btn.onclick = () => {
-                if(opt === qData.ans) {
-                    playSound('success');
-                    showMsg('大正解！バッチリ覚えてるね！', 'success');
-                } else {
-                    playSound('error');
-                    showMsg(`おしい！正解は「${qData.ans}」だよ！`, 'error');
-                }
-                setTimeout(goHome, 2500);
-            };
-            optionsArea.appendChild(btn);
-        });
-    }
-
-    // --- 3. 三権分立パワーバランス ---
-    let power = { diet: 33, cabinet: 33, court: 33 };
-    let turns = 10;
-
-    // ③ ランダムイベントカード
-    const powerEvents = [
-        { text: "📰 スキャンダル発生！内閣の力が低下", effect: () => { power.cabinet -= 15; } },
-        { text: "⚖️ 違憲判決！裁判所の力が上昇", effect: () => { power.court += 15; } },
-        { text: "🗣️ 強行採決！国会の力が上昇", effect: () => { power.diet += 15; } },
-        { text: "📈 内閣支持率アップ！", effect: () => { power.cabinet += 15; } },
-        { text: "😠 世論の反発！国会の力が低下", effect: () => { power.diet -= 15; } }
-    ];
-
-    function startPowerBalance() {
-        showScreen('screen-power');
-        power = { diet: 33, cabinet: 33, court: 33 };
-        turns = 10;
-        updatePowerUI();
-        showMsg('バランスを保って10ターン乗り切れ！', 'info');
-    }
-
-    function actPower(action) {
-        playSound('click');
-        if (turns <= 0) return;
-        
-        let change = 15;
-        if (action === 'law') { power.diet += change; power.cabinet -= change; }
-        else if (action === 'judge') { power.court += change; power.diet -= change; }
-        else if (action === 'dissolve') { power.cabinet += change; power.diet -= change; }
-        else if (action === 'appoint') { power.cabinet += change; power.court -= change; }
-
-        power.diet += Math.floor(Math.random() * 8) - 4;
-        power.cabinet += Math.floor(Math.random() * 8) - 4;
-        power.court += Math.floor(Math.random() * 8) - 4;
-
-        let msg = 'バランスが変化した！';
-
-        // ランダムイベント発生 (確率30%)
-        if (Math.random() < 0.3) {
-            const ev = powerEvents[Math.floor(Math.random() * powerEvents.length)];
-            ev.effect();
-            msg = `【イベント発生】<br>${ev.text}`;
-        }
-
-        turns--;
-        updatePowerUI();
-
-        if (power.diet >= 100 || power.diet <= 0 || power.cabinet >= 100 || power.cabinet <= 0 || power.court >= 100 || power.court <= 0) {
-            playSound('error');
-            showMsg('【憲法違反発生！】権力が偏りすぎて独裁政治になってしまった... ゲームオーバー！', 'error');
-            turns = 0;
-        } else if (turns === 0) {
-            playSound('success');
-            showMsg('クリア！見事な三権分立のバランス感覚です！立派な主権者だ！', 'success');
-        } else {
-            showMsg(msg, 'info');
-        }
-    }
-
-    function updatePowerUI() {
-        document.getElementById('power-turn').innerText = turns;
-        
-        for(let key in power) {
-            if(power[key] > 100) power[key] = 100;
-            if(power[key] < 0) power[key] = 0;
-        }
-
-        const updateMeter = (id, val) => {
-            const fill = document.getElementById(`meter-${id}`);
-            const stat = document.getElementById(`stat-${id}`);
-            fill.style.width = val + '%';
-            
-            if(val > 75) {
-                fill.style.background = '#d63031'; // 赤
-                stat.innerText = "強すぎる！"; stat.style.color = "#d63031";
-            } else if (val < 25) {
-                fill.style.background = '#0984e3'; // 青
-                stat.innerText = "弱すぎる！"; stat.style.color = "#0984e3";
-            } else {
-                fill.style.background = id==='diet' ? '#fdcb6e' : id==='cabinet' ? '#55efc4' : '#a29bfe';
-                stat.innerText = "安定"; stat.style.color = "#2d3436";
-            }
+    hideExplanation('qnks-explanation');
+    if (!currentQnks) return;
+    const cardArea = document.getElementById('qnks-cards');
+    cardArea.innerHTML = '';
+    const allCards = shuffle([...currentQnks.n, ...currentQnks.fake, ...shuffle([...knowledgeCards]).slice(0, 2)]);
+    allCards.forEach(text => {
+        const btn = document.createElement('div');
+        btn.className = 'q-card'; btn.innerText = text;
+        btn.onclick = () => {
+            if (selectedCards.length >= 3) return;
+            playSound('click');
+            selectedCards.push(text);
+            const slot = document.getElementById(`slot${selectedCards.length - 1}`);
+            slot.innerText = text; slot.classList.add('filled');
+            btn.style.opacity = '0.3'; btn.style.pointerEvents = 'none';
         };
-
-        updateMeter('diet', power.diet);
-        updateMeter('cabinet', power.cabinet);
-        updateMeter('court', power.court);
+        cardArea.appendChild(btn);
+    });
+}
+function checkQNKS() {
+    if (selectedCards.length < 3) {
+        playSound('error'); showMsg('カードを3つすべて選んでね！', 'error'); return;
     }
+    const isCorrect = selectedCards.every((c, i) => c === currentQnks.n[i]);
+    showMark(isCorrect);
+    if (isCorrect) {
+        playSound('success'); showMsg('大正解！街が良くなりました！（+20 EXP）', 'success');
+        showExplanation('qnks-explanation', true, currentQnks.explanation);
+        playerData.qnksClear++;
+        playerData.totalScore += 20;
+        checkBadges();
+        setTimeout(startQNKS, 3500);
+    } else {
+        playSound('error'); showMsg('順番か選択が違うかも？もう一度考えてみよう！', 'error');
+        showExplanation('qnks-explanation', false, currentQnks.explanation);
+    }
+}
+
+// ============================================================
+// 2. 権利と義務 カードバトル
+// ============================================================
+const rightsData = [
+    { q: "自分の考えをSNSで発信する", ans: "表現の自由", desc: "意見や考えを自由に伝える権利です（憲法21条）。ただし他人を傷つける表現は許されません。", article: "憲法21条", wrong: ["納税の義務", "勤労の義務"] },
+    { q: "病気で生活が苦しいとき、国に助けを求める", ans: "生存権", desc: "「健康で文化的な最低限度の生活を営む権利」です（憲法25条）。生活保護もここから来ています。", article: "憲法25条", wrong: ["財産権", "納税の義務"] },
+    { q: "税金を納める", ans: "納税の義務", desc: "国民が必ず果たさなければならない義務のひとつです（憲法30条）。学校・病院・道路などを支えています。", article: "憲法30条", wrong: ["生存権", "参政権"] },
+    { q: "選挙で投票する", ans: "参政権", desc: "政治に参加できる権利で、選挙権は18歳から与えられます。被選挙権（立候補する権利）も含まれます。", article: "憲法15条", wrong: ["生存権", "教育を受けさせる義務"] },
+    { q: "子どもに学校で学ばせる", ans: "教育を受けさせる義務", desc: "保護者は子どもに普通教育を受けさせる義務があります（憲法26条）。教育を受ける権利も同じ条文にあります。", article: "憲法26条", wrong: ["表現の自由", "参政権"] },
+    { q: "差別されずに生活する", ans: "平等権", desc: "すべての人が法の下に平等であることを保障しています（憲法14条）。性別・人種・門地などによる差別は禁止されています。", article: "憲法14条", wrong: ["参政権", "納税の義務"] }
+];
+let currentRightsIndex = 0, rightsScore = 0, shuffledRights = [];
+let rightsWaiting = false;
+
+function startRightsBattle() {
+    showScreen('screen-rights');
+    rightsScore = 0; currentRightsIndex = 0; rightsWaiting = false;
+    playerData.rightsPerfect = false;
+    shuffledRights = shuffle([...rightsData]).slice(0, 5);
+    buildScoreBar();
+    hideExplanation('rights-explanation');
+    showMsg('場面に合った正しい権利・義務を選ぼう！', 'info');
+    nextRights();
+}
+function buildScoreBar() {
+    const bar = document.getElementById('rights-score-bar');
+    bar.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'score-dot'; dot.id = `dot-${i}`;
+        bar.appendChild(dot);
+    }
+}
+function updateScoreBar(idx, isCorrect) {
+    const dot = document.getElementById(`dot-${idx}`);
+    if (dot) dot.classList.add(isCorrect ? 'correct' : 'wrong');
+}
+function nextRights() {
+    if (currentRightsIndex >= 5) {
+        endRightsBattle(); return;
+    }
+    const data = shuffledRights[currentRightsIndex];
+    document.getElementById('rights-scenario').innerText = `📖 場面：${data.q}`;
+    hideExplanation('rights-explanation');
+    const area = document.getElementById('rights-options');
+    area.innerHTML = '';
+    shuffle([data.ans, ...data.wrong]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-purple';
+        btn.innerText = opt;
+        btn.onclick = () => { if (!rightsWaiting) checkRightsAns(opt, data); };
+        area.appendChild(btn);
+    });
+}
+function checkRightsAns(selected, data) {
+    rightsWaiting = true;
+    const isCorrect = selected === data.ans;
+    showMark(isCorrect);
+    updateScoreBar(currentRightsIndex, isCorrect);
+    if (isCorrect) {
+        rightsScore++;
+        playSound('success');
+        showMsg(`正解！✨ ${data.article}`, 'success');
+        playerData.rightsCorrect++;
+        playerData.totalScore += 5;
+    } else {
+        playSound('error');
+        showMsg(`ざんねん！正解は「${data.ans}」`, 'error');
+    }
+    showExplanation('rights-explanation', isCorrect,
+        `<b>${data.ans}（${data.article}）</b><br>${data.desc}`);
+    document.querySelectorAll('#rights-options .btn').forEach(b => b.disabled = true);
+    currentRightsIndex++;
+    saveData();
+    setTimeout(() => { rightsWaiting = false; nextRights(); }, 2800);
+}
+function endRightsBattle() {
+    if (rightsScore === 5) { playerData.rightsPerfect = true; launchConfetti(); }
+    checkBadges();
+    const exp = rightsScore * 5;
+    showMsg(`ゲーム終了！スコア ${rightsScore}/5（+${exp} EXP）`, rightsScore >= 4 ? 'success' : 'info');
+    const reviewItems = [
+        ['📋', `正解数: ${rightsScore} / 5 問`],
+        ['⭐', `獲得EXP: +${exp}`],
+        ['💡', '권利は「もらえるもの」、義務は「しなければならないこと」'],
+        ['📖', '答えられなかった問題は教科書で確認しよう！']
+    ];
+    setTimeout(() => showReview('ふりかえり：権利と義務', reviewItems), 800);
+}
+
+// ============================================================
+// 3. 三権分立パワーバランス
+// ============================================================
+let power = { diet: 33, cabinet: 33, court: 33 };
+let turns = 10;
+let gameOver = false;
+
+const powerEvents = [
+    { text: "📰 スキャンダル！内閣の支持が急落", effect: () => { power.cabinet -= 18; }, explanation: "内閣不信任決議にもつながる事態。議院内閣制では国会が内閣を監視します。" },
+    { text: "⚖️ 違憲判決で注目が集まる！裁判所UP", effect: () => { power.court += 18; }, explanation: "裁判所の違憲審査権は「国会に歯止めをかける」重要な権限です。" },
+    { text: "🗣️ 強行採決で国会の力が高まる！", effect: () => { power.diet += 18; }, explanation: "強行採決は民主主義への疑問も生まれます。国会の暴走を止めるのが三権分立の意義です。" },
+    { text: "🗳️ 国民審査で裁判官が罷免！裁判所DOWN", effect: () => { power.court -= 14; }, explanation: "最高裁判事の国民審査は、国民が司法をチェックできる大切な仕組みです。" },
+    { text: "🤝 与野党が協力！法律が次々と成立", effect: () => { power.diet += 12; power.cabinet -= 8; }, explanation: "国会が強くなると、行政（内閣）へのチェックが必要になります。" }
+];
+
+const actionExplanations = {
+    law:     { title: "📜 法律を作る（立法）", text: "国会の本来の仕事が立法です。内閣提出の法案も多いですが、決議するのは国会。これが「三権分立」の根幹です。" },
+    judge:   { title: "🔨 違憲審査をする（司法審査）", text: "裁判所が「この法律は憲法に違反する」と判断できる権限。国会の暴走に歯止めをかけます。" },
+    dissolve:{ title: "🚪 衆議院を解散する（行政→立法の抑制）", text: "内閣は衆議院を解散できます。これが内閣のもつ強力な「国会へのカード」です。" },
+    appoint: { title: "👨‍⚖️ 最高裁長官を指名する（行政→司法の影響）", text: "内閣が最高裁長官を指名することで、行政が司法に影響を与えられます。だからこそ「司法の独立」が重要です。" }
+};
+
+function startPowerBalance() {
+    showScreen('screen-power');
+    power = { diet: 33, cabinet: 33, court: 33 };
+    turns = 10; gameOver = false;
+    document.getElementById('power-explanation').style.display = 'none';
+    updatePowerUI();
+    showMsg('三権のバランスを保って10ターン乗り切れ！', 'info');
+}
+function actPower(action) {
+    if (turns <= 0 || gameOver) return;
+    playSound('click');
+    const delta = 15;
+    if (action === 'law')     { power.diet += delta; power.cabinet -= delta; }
+    if (action === 'judge')   { power.court += delta; power.diet -= delta; }
+    if (action === 'dissolve'){ power.cabinet += delta; power.diet -= delta; }
+    if (action === 'appoint') { power.cabinet += delta; power.court -= delta; }
+
+    // 小さなランダム変動
+    power.diet    += Math.floor(Math.random() * 8) - 4;
+    power.cabinet += Math.floor(Math.random() * 8) - 4;
+    power.court   += Math.floor(Math.random() * 8) - 4;
+
+    // 解説パネル
+    const exp = actionExplanations[action];
+    const expPanel = document.getElementById('power-explanation');
+    expPanel.style.display = 'block';
+    expPanel.className = 'explanation-panel show';
+    expPanel.innerHTML = `<div class="exp-title">${exp.title}</div><div class="exp-body">${exp.text}</div>`;
+
+    let eventMsg = '';
+    if (Math.random() < 0.3) {
+        const ev = powerEvents[Math.floor(Math.random() * powerEvents.length)];
+        ev.effect();
+        eventMsg = `⚡ イベント：${ev.text}`;
+        setTimeout(() => showModal('⚡', 'イベント発生！', `${ev.text}\n\n💡 ${ev.explanation}`), 300);
+    }
+    turns--;
+    updatePowerUI();
+
+    // 上下限
+    for (const k in power) { power[k] = Math.max(0, Math.min(100, power[k])); }
+
+    const over = Object.entries(power).find(([, v]) => v >= 95 || v <= 5);
+    if (over) {
+        gameOver = true;
+        playSound('error');
+        const names = { diet: '国会', cabinet: '内閣', court: '裁判所' };
+        const reason = over[1] >= 95 ? `${names[over[0]]}の権力が強くなりすぎました！` : `${names[over[0]]}の権力が弱くなりすぎました！`;
+        showMsg(`❌ ゲームオーバー…権力が偏ってしまった！`, 'error');
+        setTimeout(() => {
+            showModal('⚠️', '憲法違反！ゲームオーバー', `${reason}\n\n三権分立は「権力が一か所に集中しないようにする」ための仕組みです。\n歴史の中で独裁者が生まれた反省から生まれました。`);
+        }, 400);
+    } else if (turns === 0) {
+        playSound('success'); launchConfetti();
+        showMsg('🎉 クリア！見事なバランス感覚！（+30 EXP）', 'success');
+        playerData.powerClear++;
+        playerData.totalScore += 30;
+        checkBadges();
+        const items = [
+            ['⚖️', '三権分立は「権力の集中」を防ぐ仕組みです'],
+            ['🏛️', '国会（立法権）は法律を作ります'],
+            ['🏢', '内閣（行政権）は法律を実行します'],
+            ['⚖️', '裁判所（司法権）は法律が正しく使われているか判断します'],
+            ['🤝', 'それぞれが互いをチェックし合う「抑制と均衡」がポイント！']
+        ];
+        setTimeout(() => showReview('ふりかえり：三権分立', items), 600);
+    } else {
+        showMsg(eventMsg || 'バランスが変化した！次のアクションを選ぼう', 'info');
+    }
+}
+function updatePowerUI() {
+    document.getElementById('power-turn').innerText = turns;
+    const configs = {
+        diet:    { label: '🏛️ 国会（立法権）',   normal: '#fdcb6e', shadow: '#c69a1e' },
+        cabinet: { label: '🏢 内閣（行政権）',   normal: '#55efc4', shadow: '#00b894' },
+        court:   { label: '⚖️ 裁判所（司法権）', normal: '#a29bfe', shadow: '#6c5ce7' }
+    };
+    for (const [key, cfg] of Object.entries(configs)) {
+        const val = Math.max(0, Math.min(100, power[key]));
+        const fill = document.getElementById(`meter-${key}`);
+        const stat = document.getElementById(`stat-${key}`);
+        fill.style.width = val + '%';
+        if (val > 75) {
+            fill.style.background = '#d63031';
+            stat.innerText = '⚠ 強すぎ！'; stat.style.background = '#d63031';
+        } else if (val < 25) {
+            fill.style.background = '#0984e3';
+            stat.innerText = '⚠ 弱すぎ！'; stat.style.background = '#0984e3';
+        } else {
+            fill.style.background = cfg.normal;
+            stat.innerText = '✓ 安定'; stat.style.background = '#636e72';
+        }
+    }
+}
 </script>
 </body>
 </html>
